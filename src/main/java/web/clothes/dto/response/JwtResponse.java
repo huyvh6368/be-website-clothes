@@ -1,10 +1,13 @@
 package web.clothes.dto.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class JwtResponse {
-    private String token;
+    private String accessToken;
+    private String refreshToken;
 }

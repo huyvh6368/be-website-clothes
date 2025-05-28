@@ -17,7 +17,7 @@ public class Account extends BaseEntity {
     private String password;
     private String phoneNumber;
     private String role;
-
+    private String refreshToken;
     @OneToOne(mappedBy = "account")
     @JsonBackReference
     private User user;

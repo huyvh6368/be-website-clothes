@@ -1,63 +1,92 @@
 package web.clothes.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.*;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import web.clothes.security.JwtTokenProvider;
+import web.clothes.security.UserDetailServiceImpl;
+import web.clothes.service.JwtService;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final JwtTokenProvider jwtTokenProvider;
-    private final UserDetailsService userDetailsService;
+    private final JwtService jwtService;
+    private final UserDetailServiceImpl userDetailsService;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
-        // Lấy JWT token từ header
-        String token = getJwtFromRequest(request);
+    protected void doFilterInternal(
+            @NonNull HttpServletRequest request,
+            @NonNull HttpServletResponse response,
+            @NonNull FilterChain filterChain
+    ) throws ServletException, IOException {
+        final String authHeader = request.getHeader("Authorization");
 
-        // Validate token
-        if (token != null && jwtTokenProvider.validateToken(token)) {
-            // Lấy username từ token
-            String username = jwtTokenProvider.getUsername(token);
-
-            // Lấy thông tin user
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-
-            // Nếu người dùng hợp lệ, set thông tin cho Security Context
-            UsernamePasswordAuthenticationToken authenticationToken =
-                    new UsernamePasswordAuthenticationToken(
-                            userDetails,
-                            null,
-                            userDetails.getAuthorities()
-                    );
-            authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
         }
 
-        filterChain.doFilter(request, response);
+        final String jwt = authHeader.substring(7);
+        String userEmail = null;
+
+        try {
+            // Lấy username từ token
+            userEmail = jwtService.extractUsername(jwt);
+
+            if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
+
+                if (jwtService.isTokenValid(jwt, userDetails)) {
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            userDetails, null, userDetails.getAuthorities());
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
+            }
+
+            filterChain.doFilter(request, response);
+        } catch (ExpiredJwtException e) {
+            writeErrorResponse(response, "JWT token has expired", e);
+        } catch (MalformedJwtException e) {
+            writeErrorResponse(response, "JWT token is malformed", e);
+        } catch (SignatureException e) {
+            writeErrorResponse(response, "JWT signature is invalid", e);
+        } catch (UnsupportedJwtException e) {
+            writeErrorResponse(response, "JWT token is unsupported", e);
+        } catch (IllegalArgumentException e) {
+            writeErrorResponse(response, "JWT claims string is empty or invalid", e);
+        } catch (Exception e) {
+            writeErrorResponse(response, "An unexpected error occurred during JWT validation", e);
+        }
     }
 
-    private String getJwtFromRequest(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
-        }
-        return null;
+    private void writeErrorResponse(HttpServletResponse response, String message, Exception e) throws IOException {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json");
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("status", HttpServletResponse.SC_UNAUTHORIZED);
+        body.put("error", "UNAUTHORIZED");
+        body.put("message", message);
+        body.put("exception", e.getClass().getSimpleName());
+        body.put("timestamp", LocalDateTime.now().toString());
+
+        new ObjectMapper().writeValue(response.getWriter(), body);
     }
 }
