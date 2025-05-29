@@ -11,6 +11,7 @@ import web.clothes.dto.ResponseData;
 import web.clothes.dto.request.AccountRequest;
 import web.clothes.dto.request.LoginRequest;
 import web.clothes.dto.request.RefreshTokenRequest;
+import web.clothes.dto.response.AccountResponse;
 import web.clothes.dto.response.JwtResponse;
 import web.clothes.service.AccountService;
 
@@ -23,7 +24,12 @@ public class AuthController {
     // Đăng ký user mới
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody AccountRequest request) {
-        return ResponseEntity.ok("success");
+        AccountResponse response = accountService.register(request);
+        return ResponseEntity.ok(new ResponseData<>(
+                HttpStatus.OK.value(),
+                "Login Successfully !!",
+                response,
+                null, null, null, null));
     }
 
     // login method

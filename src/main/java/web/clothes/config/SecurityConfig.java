@@ -38,6 +38,13 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final UserDetailsService userDetailsService;
     private final CustomLogoutService customLogoutService;
+    String[] unAuth = {
+            "/swagger-ui/index.html",
+            "/api/v1/auth/**"
+    };
+    String[] admin = {
+            "/admin/**"
+    };
 
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
@@ -57,9 +64,9 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/admin/**").hasAnyRole("ADMIN")
-                        .requestMatchers("/api/v1/auth/**").permitAll()
-                        .anyRequest().authenticated()
+                        .requestMatchers(admin).hasAnyRole("ADMIN")
+                        .requestMatchers(unAuth).permitAll()
+                        .anyRequest().permitAll()
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())

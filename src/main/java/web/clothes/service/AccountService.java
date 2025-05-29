@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import web.clothes.dto.request.AccountRequest;
 import web.clothes.dto.request.LoginRequest;
 import web.clothes.dto.request.RefreshTokenRequest;
+import web.clothes.dto.response.AccountResponse;
 import web.clothes.dto.response.JwtResponse;
 import web.clothes.entity.Account;
 import web.clothes.mapper.AccountMapper;
@@ -23,14 +24,14 @@ public class AccountService {
     private final AuthenticationManager authenticationManager;
 
     // handler register
-    public void register(AccountRequest request) {
+    public AccountResponse register(AccountRequest request) {
         String password = passwordEncoder.encode(request.getPassword());
         Account account = AccountMapper.addRequestToEntity(request, password);
         accountRepository.save(account);
         UserDetailImpl userDetails = new UserDetailImpl(account);
         var refreshToken = jwtService.generateRefreshToken(userDetails);
         account.setRefreshToken(refreshToken);
-        accountRepository.save(account);
+        return AccountMapper.entityToResponse(accountRepository.save(account));
     }
 
     // handler login
