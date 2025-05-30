@@ -40,7 +40,8 @@ public class SecurityConfig {
     private final CustomLogoutService customLogoutService;
     String[] unAuth = {
             "/swagger-ui/index.html",
-            "/api/v1/auth/**"
+            "/api/v1/auth/**",
+            "/api/v1/email/**"
     };
     String[] admin = {
             "/admin/**"
