@@ -17,6 +17,7 @@ public abstract class BaseEntity {
     private Long id;
 
     private Integer status;
+
     private Boolean deleted = false;
 
     @CreationTimestamp

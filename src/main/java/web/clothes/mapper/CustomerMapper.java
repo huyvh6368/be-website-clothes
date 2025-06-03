@@ -9,10 +9,9 @@ import web.clothes.entity.Cart;
 import web.clothes.entity.Customer;
 
 public class CustomerMapper {
-    public static Customer addRequestToEntity(CustomerRequest request, Account account, Cart cart) {
+    public static Customer addRequestToEntity(CustomerRequest request, Account account) {
         return Customer.builder()
                 .account(account)
-                .cart(cart)
                 .name(request.getName())
                 .birthday(request.getBirthday())
                 .gender(request.getGender())
@@ -33,14 +32,14 @@ public class CustomerMapper {
     }
 
     public static CustomerResponse
-    entityToResponse(Customer entity, AccountResponse accountResponse, CartResponse cartResponse) {
+    entityToResponse(Customer entity, AccountResponse accountResponse) {
         return CustomerResponse.builder()
                 .id(entity.getId())
                 .name(entity.getName())
                 .birthday(entity.getBirthday())
                 .gender(entity.getGender())
                 .orderCancellationCount(entity.getOrderCancellationCount())
-                .cartResponse(cartResponse)
+
                 .account(accountResponse)
                 .build();
     }

@@ -6,13 +6,17 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import web.clothes.dto.request.AccountRequest;
+import web.clothes.dto.request.CustomerRequest;
 import web.clothes.dto.request.LoginRequest;
 import web.clothes.dto.request.RefreshTokenRequest;
 import web.clothes.dto.response.AccountResponse;
+import web.clothes.dto.response.CustomerResponse;
 import web.clothes.dto.response.JwtResponse;
 import web.clothes.entity.Account;
+import web.clothes.entity.Customer;
 import web.clothes.mapper.AccountMapper;
 import web.clothes.repository.AccountRepository;
+import web.clothes.repository.CustomerRepository;
 import web.clothes.security.UserDetailImpl;
 
 @Service
@@ -22,6 +26,7 @@ public class AccountService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final CustomerRepository customerRepository;
 
     // handler register
     public AccountResponse register(AccountRequest request) {
@@ -31,6 +36,14 @@ public class AccountService {
         UserDetailImpl userDetails = new UserDetailImpl(account);
         var refreshToken = jwtService.generateRefreshToken(userDetails);
         account.setRefreshToken(refreshToken);
+        // create  customer
+        Customer customer = new Customer();
+        customer.setName(account.getName());
+        customer.setAccount(account);
+        customer.setBirthday(null);
+        customer.setGender("male");
+        customer.setOrderCancellationCount(0);
+        customerRepository.save(customer);
         return AccountMapper.entityToResponse(accountRepository.save(account));
     }
 

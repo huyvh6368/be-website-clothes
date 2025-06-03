@@ -8,5 +8,4 @@ public class AccountRequest {
     private String email;
     private String password;
     private String phoneNumber;
-    private String role;
 }

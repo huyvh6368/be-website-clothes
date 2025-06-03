@@ -3,6 +3,7 @@ package web.clothes.dto.response;
 import lombok.*;
 
 import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -11,7 +12,8 @@ import java.time.LocalDateTime;
 @ToString
 public class CartResponse {
     private Long id;
-    private CustomerResponse customer;
+    private String customerName;
+    private Long customerId;
     private Integer status;
     private LocalDateTime createDate;
     private LocalDateTime updateDate;

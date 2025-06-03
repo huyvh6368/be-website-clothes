@@ -17,10 +17,11 @@ public class CartMapper {
         return cart;
     }
 
-    public static CartResponse entityToResponse(Cart entity, CustomerResponse customerResponse) {
+    public static CartResponse entityToResponse(Cart entity) {
         return CartResponse.builder()
                 .id(entity.getId())
-                .customer(customerResponse)
+                .customerName(entity.getCustomer().getName())
+                .customerId(entity.getCustomer().getId())
                 .build();
     }
 }

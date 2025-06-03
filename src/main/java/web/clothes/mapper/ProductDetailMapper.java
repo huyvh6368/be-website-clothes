@@ -38,7 +38,7 @@ public class ProductDetailMapper {
     }
 
     public static ProductDetailResponse entityToResponse(ProductDetail entity,
-                                                         ProductResponse productResponse,
+                                                         Product product,
                                                          ColorResponse colorResponse,
                                                          SizeResponse sizeResponse,
                                                          List<ImageResponse> imagesResponse
@@ -49,7 +49,8 @@ public class ProductDetailMapper {
                 .describes(entity.getDescribes())
                 .barcode(entity.getBarcode())
                 .color(colorResponse)
-                .product(productResponse)
+                .productId(product.getId())
+                .productName(product.getName())
                 .size(sizeResponse)
                 .price(entity.getPrice())
                 .quantity(entity.getQuantity())

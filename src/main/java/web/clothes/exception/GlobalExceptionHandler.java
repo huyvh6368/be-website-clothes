@@ -36,6 +36,18 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<?> handleRuntimeException(RuntimeException ex) {
+        ResponseError error = new ResponseError(
+                HttpStatus.BAD_REQUEST.value(),
+                "Lỗi xử lý dữ liệu",
+                LocalDateTime.now(),
+                ex.getMessage(),
+                getFilePath(ex)
+        );
+        return ResponseEntity.badRequest().body(error);
+    }
+
     private String getFilePath(Exception ex) {
         StackTraceElement[] stackTrace = ex.getStackTrace();
         if (stackTrace.length > 0) {

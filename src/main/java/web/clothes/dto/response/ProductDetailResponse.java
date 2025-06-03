@@ -21,7 +21,8 @@ public class ProductDetailResponse {
     private ColorResponse color;
     private String describes;
     private String barcode;
-    private ProductResponse product;
+    private String productName;
+    private Long productId;
     private Integer status;
     private LocalDateTime createDate;
     private LocalDateTime updateDate;

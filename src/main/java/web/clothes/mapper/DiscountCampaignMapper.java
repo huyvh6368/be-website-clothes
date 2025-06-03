@@ -3,6 +3,7 @@ package web.clothes.mapper;
 import web.clothes.dto.request.DiscountCampaignRequest;
 import web.clothes.dto.response.DiscountCampaignResponse;
 import web.clothes.entity.DiscountCampaign;
+import web.clothes.util.DiscountStatus;
 
 public class DiscountCampaignMapper {
     public static DiscountCampaign addRequestToEntity(DiscountCampaignRequest request) {
@@ -15,7 +16,7 @@ public class DiscountCampaignMapper {
         discountCampaign.setDiscountType(request.getDiscountType());
         discountCampaign.setDiscountValue(request.getDiscountValue());
         discountCampaign.setDiscountMax(request.getDiscountMax());
-        discountCampaign.setStatus(request.getStatus());
+        discountCampaign.setStatus(DiscountStatus.SAP_DIEN_RA);
         return discountCampaign;
     }
 
