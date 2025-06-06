@@ -1,14 +1,13 @@
-# step 1: build
-FROM maven:3.9.5-amazoncorretto-17 AS build
+# Build stage
+FROM maven:3.8.6-openjdk-18 AS build
 WORKDIR /app
 COPY pom.xml .
 COPY src ./src
+RUN mvn clean package -DskipTests
 
-RUN mvn package -DskipTests
-
-# step 2: run
-FROM amazoncorretto:17.0.12
+# Run stage
+FROM openjdk:18-jdk
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
-
+EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
