@@ -99,4 +99,14 @@ public class AccountService {
                 .refreshToken(refreshToken)
                 .build();
     }
+
+    // edit password
+    public String editPassword(String email, String newPassword) {
+        String password = passwordEncoder.encode(newPassword);
+        Account account = accountRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        account.setPassword(password);
+        accountRepository.save(account);
+        return password;
+    }
 }

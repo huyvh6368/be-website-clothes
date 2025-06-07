@@ -6,13 +6,18 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import web.clothes.constant.TextGenerator;
+
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class MailService {
 
     private final JavaMailSender mailSender;
+    private final AccountService accountService;
 
     public void sendSimpleEmail(String toEmail,
                                 String subject,
@@ -29,11 +34,12 @@ public class MailService {
         System.out.println("Mail sent successfully...");
     }
 
-    public void sendNewPasswordEmail(String toEmail, String newPassword) throws MessagingException {
+    public void sendNewPasswordEmail(String toEmail) throws MessagingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-
         helper.setTo(toEmail);
+        String newPassword = TextGenerator.genText("pw_");
+        accountService.editPassword(toEmail, newPassword);
         helper.setSubject("🔐 Mật khẩu mới của bạn"); // tiêu đề
 //        helper.setFrom("vuhoanghuy123321@gmail.com"); // email gưi
         // phần nội dung

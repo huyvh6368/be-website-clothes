@@ -25,7 +25,7 @@ public class EmailController {
 
     @PostMapping("/forgot")
     public String forgot(@RequestBody EmailRequest emailRequest) throws MessagingException {
-        mailService.sendNewPasswordEmail(emailRequest.getEmail(), "new password");
+        mailService.sendNewPasswordEmail(emailRequest.getEmail());
         return "Email sent successfully to " + emailRequest.getEmail();
     }
 }
